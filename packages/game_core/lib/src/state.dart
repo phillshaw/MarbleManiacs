@@ -3,11 +3,7 @@ import 'cards.dart';
 
 /// Table setup chosen before the game starts.
 class GameConfig {
-  GameConfig({
-    required this.stations,
-    this.teams = const [],
-    this.canKnockOutTeammate = true,
-  }) {
+  GameConfig({required this.stations, this.teams = const []}) {
     if (stations.length < 2 || stations.length > Board.stations) {
       throw ArgumentError('Aggies and Jokers seats 2 to 6 players');
     }
@@ -28,9 +24,6 @@ class GameConfig {
 
   /// Groups of stations playing together. Empty means everyone for themselves.
   final List<List<int>> teams;
-
-  /// Whether landing on a teammate sends them Home like anyone else.
-  final bool canKnockOutTeammate;
 
   int get players => stations.length;
 

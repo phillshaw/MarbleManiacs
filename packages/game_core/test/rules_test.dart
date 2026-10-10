@@ -162,6 +162,16 @@ void main() {
       expect(movesOf(s), contains('5s: $a0 +5'));
     });
 
+    test('back 4 from Come Out, then forward into the Destination', () {
+      var s = table(hand: [Rank.four, Rank.six], spots: {a0: OnTrack(seat(0))});
+      s = play(s, (m) => m is StepMove && m.steps == -4);
+      // Hand the turn back to station 0 for the follow-up card.
+      s.turn = 0;
+      s = play(s, (m) => m is StepMove && m.steps == 6);
+      // 104 -> 105, 106, 107 (branch), then Destination slots 0, 1, 2.
+      expect(s.spots[a0], const InDestination(2));
+    });
+
     test('Four moves backwards', () {
       var s = table(hand: [Rank.four], spots: {a0: OnTrack(seat(20))});
       s = play(s, (m) => m is StepMove);
@@ -333,6 +343,58 @@ void main() {
   });
 
   group('teams', () {
+    final pairs = GameConfig.acrossTeams([0, 1, 3, 4]);
+    const partner = MarbleId(3, 0), rival = MarbleId(1, 0);
+
+    test('cannot land on your partner', () {
+      final s = table(
+        stations: [0, 1, 3, 4],
+        teams: pairs,
+        hand: [Rank.five],
+        spots: {a0: OnTrack(seat(10)), partner: OnTrack(seat(15))},
+      );
+      expect(movesOf(s, Rank.five), isEmpty);
+    });
+
+    test('can pass your partner', () {
+      final s = table(
+        stations: [0, 1, 3, 4],
+        teams: pairs,
+        hand: [Rank.five],
+        spots: {a0: OnTrack(seat(10)), partner: OnTrack(seat(12))},
+      );
+      expect(movesOf(s, Rank.five), ['5s: $a0 +5']);
+    });
+
+    test('cannot come out onto your partner', () {
+      final s = table(
+        stations: [0, 1, 3, 4],
+        teams: pairs,
+        hand: [Rank.ace],
+        spots: {partner: OnTrack(seat(0))},
+      );
+      expect(Rules.legalMoves(s).whereType<ComeOutMove>(), isEmpty);
+    });
+
+    test('the King sweep skips your partner', () {
+      var s = table(
+        stations: [0, 1, 3, 4],
+        teams: pairs,
+        hand: [Rank.king],
+        spots: {
+          a0: OnTrack(seat(10)),
+          a1: const InDestination(3),
+          a2: const InDestination(2),
+          a3: const InDestination(1),
+          partner: OnTrack(seat(14)),
+          rival: OnTrack(seat(17)),
+        },
+      );
+      s = play(s, (m) => m is StepMove);
+      expect(s.spots[partner], OnTrack(seat(14)));
+      expect(s.spots[rival], const InHome());
+    });
+
     test('a team wins only when both partners are home', () {
       final stations = [0, 1, 3, 4];
       final teams = GameConfig.acrossTeams(stations);

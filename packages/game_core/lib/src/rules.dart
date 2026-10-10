@@ -213,15 +213,12 @@ abstract final class Rules {
     return _canSendHome(state, marble, occupant) ? seat : null;
   }
 
-  static bool _canSendHome(GameState state, MarbleId mover, MarbleId victim) {
-    if (victim.station == mover.station) return false;
-    if (state.isProtected(victim)) return false;
-    if (!state.config.canKnockOutTeammate &&
-        state.config.sameTeam(mover.station, victim.station)) {
-      return false;
-    }
-    return true;
-  }
+  /// Opponents can be sent Home; you and your partner can't, and nobody on
+  /// their own Come Out can. Landing on a marble you can't send Home is
+  /// illegal, and the King's sweep passes over it.
+  static bool _canSendHome(GameState state, MarbleId mover, MarbleId victim) =>
+      !state.isProtected(victim) &&
+      !state.config.sameTeam(mover.station, victim.station);
 
   /// Follows [marble] for [steps] seats (negative is backwards) and reports
   /// where it ends up and who it sends Home, or null if the move is illegal.
