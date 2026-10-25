@@ -1,3 +1,30 @@
 .DS_Store
 .dart_tool/
 build/
+
+# Flutter/Dart
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+coverage/
+
+# Secrets & signing
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+*.p12
+*.p8
+*.mobileprovision
+*.pem
+google-services.json
+GoogleService-Info.plist
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
